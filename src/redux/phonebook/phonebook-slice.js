@@ -23,6 +23,7 @@ const phonebookSlice = createSlice({
         };
       },
     },
+    
     deleteContacts: (state, { payload }) => {
       return state.filter(({ id }) => id !== payload);
     },
