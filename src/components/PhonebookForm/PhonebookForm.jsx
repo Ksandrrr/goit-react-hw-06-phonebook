@@ -1,25 +1,47 @@
 import Style from '../Component.module.css';
 import { useState } from 'react';
-import PropTypes from 'prop-types';
-const ContactForm = ({ onAddContacts }) => {
+import { addContacts } from '../../redux/phonebook/phonebook-slice';
+
+import { getContacts } from '../../redux/phonebook/phonebook-selectors';
+
+import { useSelector, useDispatch } from 'react-redux';
+const ContactForm = () => {
+  const dispatch = useDispatch();
+  const contacts = useSelector(getContacts);
+
   const [name, setName] = useState('');
   const [number, setNumber] = useState('');
 
   const handleNameChange = ({ target }) => {
     const { name, value } = target;
-    // name === 'name' ? setName(value) : setNumber(value);
     switch (name) {
       case 'name':
-        setName(value)
+        setName(value);
         break;
       default:
-      setNumber(value)
+        setNumber(value);
         break;
     }
   };
+  const isDublicate = (name, number) => {
+    const normalizedName = name.toLowerCase();
+    const normalizedPhone = number.toLowerCase();
+    const dublicate = contacts.find(contact => {
+      return (
+        contact.name.toLowerCase() === normalizedName &&
+        contact.number.toLowerCase() === normalizedPhone
+      );
+    });
+    return Boolean(dublicate);
+  };
+
   const handleSubmit = event => {
     event.preventDefault();
-    onAddContacts({ name, number });
+    if (isDublicate(name, number)) {
+      alert(`${name} is already in contacts`);
+      return;
+    }
+    dispatch(addContacts({ name, number }));
     reset();
   };
   const reset = () => {
@@ -58,8 +80,5 @@ const ContactForm = ({ onAddContacts }) => {
       </button>
     </form>
   );
-};
-ContactForm.propTypes = {
-  onAddContacts: PropTypes.func.isRequired,
 };
 export default ContactForm;
